@@ -1,5 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
-  HOST: "localhost",
-  PORT: 27017,
-  DB: "RCP_Database",
+  URL:'mongodb+srv://'+process.env.uname+':'+process.env.password+'@cluster0.upkgk.mongodb.net/?retryWrites=true&w=majority'
 };
