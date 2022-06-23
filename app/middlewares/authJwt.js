@@ -32,7 +32,7 @@ isAdmin = (req, res, next) => {
           return;
         }
         for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "admin") {
+          if (roles[i].name === "Admin") {
             next();
             return;
           }

@@ -21,4 +21,5 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
+  app.post("api/upload_sheet",[authJwt.verifyToken, authJwt.isModerator])
 };
