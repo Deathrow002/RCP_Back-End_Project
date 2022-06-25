@@ -10,7 +10,6 @@ module.exports = function (app) {
     next();
   });
   app.get("/api/test/all", controller.allAccess);
-  app.get("/api/test/a", controller.allAccess);
   app.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
   app.get(
     "/api/test/mod",
@@ -22,4 +21,8 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
+  app.post("/api/test/upload_sheet",
+  [authJwt.verifyToken, authJwt.isAdmin], 
+  controller.allAccess
+);
 };
