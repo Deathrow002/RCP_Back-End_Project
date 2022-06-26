@@ -1,5 +1,6 @@
 const { authJwt } = require("../middlewares");
 const controller = require("../controllers/user.controller");
+const UploadSheet = require("../JsonConverter/ExceltoJson");
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -21,8 +22,9 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
-  app.post("/api/test/upload_sheet",
-  [authJwt.verifyToken, authJwt.isAdmin], 
-  controller.allAccess
-);
+  app.post(
+    "/api/test/upload_sheet",
+    [authJwt.verifyToken],
+    UploadSheet.excelJson
+  );
 };
