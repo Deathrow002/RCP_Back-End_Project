@@ -21,9 +21,8 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
-  app.post(
-    "/api/test/upload_sheet",
-    [authJwt.verifyToken, authJwt.isAdmin],
-    controller.userdetail
-  );
+  app.post("/api/test/upload_sheet",
+  [authJwt.verifyToken, authJwt.isAdmin], 
+  controller.allAccess
+);
 };
