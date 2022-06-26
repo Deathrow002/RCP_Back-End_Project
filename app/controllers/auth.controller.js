@@ -21,7 +21,7 @@ exports.signup = (req, res) => {
     if (req.body.roles) {
       Role.find(
         {
-          name: { $in: req.body.roles },
+          name: { $in: req.body.roles }
         },
         (err, roles) => {
           if (err) {
