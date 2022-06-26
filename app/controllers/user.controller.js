@@ -15,5 +15,7 @@ exports.moderatorBoard = (req, res) => {
 };
 
 exports.userdetail = (req, res) => {
-  res.status(200).send("User ID: "+req.userId);
+  res.status(200);
+  res.write("User ID: "+req.userId);
+  res.send();
 };
