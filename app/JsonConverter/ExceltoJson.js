@@ -3,6 +3,7 @@ const db = require("../models");
 const excelToJson = require('convert-excel-to-json');
 const fs = require('fs');
 
+const User = db.user;
 const Table = db.Project_Table;
 
 exports.excelJson = (req, res) => {
@@ -16,8 +17,8 @@ exports.excelJson = (req, res) => {
             res.status(500).send({ message: err });
             return;
         }
-        if(req.body.roles){
-            
+        if(req.userId){
+            User.find(ObjectId(req.userId))
         }
     })
 }
