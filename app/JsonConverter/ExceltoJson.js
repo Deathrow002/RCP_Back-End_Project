@@ -1,32 +1,59 @@
 const db = require("../models");
-const ObjectId = require("mongodb").ObjectId;
 
 const excelToJson = require("convert-excel-to-json");
+const xlsx = require("xlsx");
 const fs = require("fs");
+var xls = require('excel');
 
-const User = db.user;
+const User = require("../models/user.model");
+
 const Table = db.Project_Table;
 
-exports.excelJson = (req, res) => {
+exports.UploadSheet = (req, res) => {
   const cell = new Table({
     project_name: req.body.project_name,
     project_owner: req.userId,
-    worksheet: req.body.sheet,
+    worksheet: null,
   });
-  cell.save((err, cell) => {
+  cell.save((err) => {
     if (err) {
       res.status(500).send({ message: err });
       return;
     }
-    if (req.userId) {
-      User.find(ObjectId(req.userId), (err, uid) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-        cell.uid = uid.map((user)=>user._id)
-        //res.send("Data: " + cell.uid);
-      });
-    }
+    res.status(200).send("Uplaod Worksheet Successed");
   });
+};
+
+exports.ConvertExelToJson = (req, res) => {
+  /*const file = (req.files);
+  const conFile = excelToJson({
+    source: file,
+  });
+  res.send(conFile);*/
+  xls(req.files, function(err, data){
+    if(err)throw err;
+    res.send(JSON.stringify(convertToJSON(data)))
+  })
+};
+
+function convertToJSON(array) {
+  var first = array[0].join()
+  var headers = first.split(',');
+
+  var jsonData = [];
+  for ( var i = 1, length = array.length; i < length; i++ )
+  {
+
+    var myRow = array[i].join();
+    var row = myRow.split(',');
+
+    var data = {};
+    for ( var x = 0; x < row.length; x++ )
+    {
+      data[headers[x]] = row[x];
+    }
+    jsonData.push(data);
+
+  }
+  return jsonData;
 };

@@ -11,6 +11,12 @@ const User = mongoose.model(
         ref: "Role",
       },
     ],
+    worksheet:[
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Project Table",
+      }
+    ]
   })
 );
 module.exports = User;

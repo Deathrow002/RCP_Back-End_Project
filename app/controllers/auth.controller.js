@@ -12,6 +12,7 @@ exports.signup = (req, res) => {
     username: req.body.username,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 8),
+    worksheet:null,
   });
   user.save((err, user) => {
     if (err) {
@@ -80,7 +81,7 @@ exports.signin = (req, res) => {
           message: "Invalid Password!",
         });
       }
-      var token = jwt.sign({ id: user.id }, config.secret, {
+      var token = jwt.sign({ id: user.id,username:user.username }, config.secret, {
         expiresIn: 86400, // 24 hours
       });
       var authorities = [];
