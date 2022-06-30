@@ -8,15 +8,13 @@ var corsOptions = {
   origin: "http://localhost:8081",
 };
 
-var fileupload = require("express-fileupload");
-
 app.use(cors(corsOptions));
 
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use(fileupload());
+global.__basedir = __dirname + "/..";
 
 const db = require("./app/models");
 const dbConfig = require("./app/config/db.config")
