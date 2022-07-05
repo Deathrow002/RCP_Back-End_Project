@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - .:/usr/src/app/
+      - dependencies:/usr/src/app/node_modules
+    restart: always
+    container_name: IBM_RCP_BackEnd
+    ports:
+      - 8080:8080
+    command: yarn server
+    
+volumes:
+  dependencies:

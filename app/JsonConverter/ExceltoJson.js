@@ -3,10 +3,6 @@ const db = require("../models");
 const xlsx = require("xlsx");
 var fs = require("fs");
 
-//var multer = require("multer");
-
-//var upload = multer({ dest: "./uploads/" });
-
 const Table = db.Project_Table;
 
 exports.UploadSheet = (req, res) => {
@@ -37,40 +33,23 @@ exports.ConvertExelToJson = async (req, res) => {
     const sheetNames = file.SheetNames;
     const totalSheets = sheetNames.length;
 
-    let parsedData = [];
-    let allsheet = [];
-
     const Choose_Sheet = ["AD_2-Payment", "AD_1A-Finance"];
 
     let chooseSheet = Choose_Sheet.length;
 
-    var count = 0;
-
-    /*for (let i = 0; i < totalSheets; i++) {
-      const tempData = xlsx.utils.sheet_to_json(file.Sheets[sheetNames[i]]);
-      tempData.shift();
-      parsedData.push(...tempData);
-      allsheet.push(sheetNames[i]);
-    }*/
-
     for (let i = 0; i < totalSheets; i++) {
       for (let j = 0; j < chooseSheet; j++) {
         if (sheetNames[i] == Choose_Sheet[j]) {
-          res.write(
-            "Sheet Match: " + Choose_Sheet[j] + " and " + sheetNames[i]
-          );
           const tempData = xlsx.utils.sheet_to_json(file.Sheets[sheetNames[i]]);
-          generateJSONFile(tempData, sheetNames[j]);
+          generateJSONFile(tempData, Date.now()+"."+sheetNames[i]);
         }
       }
     }
 
-    //generateJSONFile(parsedData, path, req.file.filename);
+    fs.unlinkSync(path);
     res.status(200);
     res.write("Data was Created");
     res.send();
-
-    fs.unlinkSync(path);
   } catch (error) {
     console.log(error);
     res.status(500).send({
