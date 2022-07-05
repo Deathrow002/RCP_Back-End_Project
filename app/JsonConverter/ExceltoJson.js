@@ -6,18 +6,52 @@ var fs = require("fs");
 const Table = db.Project_Table;
 
 exports.UploadSheet = (req, res) => {
-  const cell = new Table({
-    project_name: req.body.project_name,
-    project_owner: req.userId,
-    worksheet: null,
-  });
-  cell.save((err) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
+  try {
+    if (req.file == undefined) {
+      return res.status(400).send("Please upload an excel file!");
     }
-    res.status(200).send("Uplaod Worksheet Successed");
-  });
+    let path = "./uploads/" + req.file.filename;
+
+    const file = xlsx.readFile(path);
+
+    const sheetNames = file.SheetNames;
+    const totalSheets = sheetNames.length;
+
+    const Choose_Sheet = ["AD_2-Payment"];
+
+    //let chooseSheet = Choose_Sheet.length;
+
+    const sheetData = '';
+
+    const sheet = new Table({
+      project_name: req.body.project_name,
+      project_owner: req.userId,
+      worksheet: sheetData
+    });
+
+    /*for (let i = 0; i < totalSheets; i++) {
+      for (let j = 0; j < chooseSheet; j++) {
+        if (sheetNames[i] == Choose_Sheet[j]) {
+          
+          generateJSONFile(tempData, Date.now() + "." + sheetNames[i]);
+        }
+      }
+    }*/
+
+    sheetData = xlsx.utils.sheet_to_json(file.Sheets[Choose_Sheet]);
+
+    sheet.save((err, sheet) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+      res.status(200).send("Uplaod Worksheet Successed");
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: "Could not upload the file: " + req.file.originalname,
+    });
+  }
 };
 
 exports.ConvertExelToJson = async (req, res) => {
@@ -41,7 +75,7 @@ exports.ConvertExelToJson = async (req, res) => {
       for (let j = 0; j < chooseSheet; j++) {
         if (sheetNames[i] == Choose_Sheet[j]) {
           const tempData = xlsx.utils.sheet_to_json(file.Sheets[sheetNames[i]]);
-          generateJSONFile(tempData, Date.now()+"."+sheetNames[i]);
+          generateJSONFile(tempData, Date.now() + "." + sheetNames[i]);
         }
       }
     }
@@ -51,7 +85,6 @@ exports.ConvertExelToJson = async (req, res) => {
     res.write("Data was Created");
     res.send();
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       message: "Could not upload the file: " + req.file.originalname,
     });
@@ -65,6 +98,8 @@ function generateJSONFile(data, filename) {
       JSON.stringify(data)
     );
   } catch (err) {
-    console.error(err);
+    res.status(500).send({
+      message: "Could not upload the file: " + req.file.originalname,
+    });
   }
 }

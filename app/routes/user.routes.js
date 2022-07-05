@@ -27,6 +27,6 @@ module.exports = function (app) {
     "/api/test/upload_sheet",
     [authJwt.verifyToken],
     upload.single("file"),
-    UploadSheet.ConvertExelToJson
+    UploadSheet.UploadSheet
   );
 };
