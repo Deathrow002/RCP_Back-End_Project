@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 global.__basedir = __dirname + "/..";
 
 const db = require("./app/models");
-const dbConfig = require("./app/config/db.config")
+const dbConfig = require("./app/config/db.config");
 
 const Role = db.role;
 
@@ -66,11 +66,11 @@ function initial() {
   });
 }
 
-require('./app/routes/auth.routes')(app);
+require("./app/routes/auth.routes")(app);
 
-require('./app/routes/user.routes')(app);
+require("./app/routes/user.routes")(app);
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8081;
 
 app.get("/", (req, res) => {
   res.json({ message: "IBM RCP Server is Started" });
