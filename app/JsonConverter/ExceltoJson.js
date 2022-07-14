@@ -53,11 +53,11 @@ exports.ConvertExelToJson = async (req, res) => {
 
     const file = xlsx.readFile(path, { type: "binary", dateNF: "mm/dd/yyyy" });
 
-    const Choose_Sheet = ["AD_1A-Finance"];
+    const Choose_Sheet = "AD_1A-Finance";
 
-    const tempData = xlsx.utils.sheet_to_json(file.Sheets[Choose_Sheet[0]]);
+    const tempData = xlsx.utils.sheet_to_json(file.Sheets[Choose_Sheet]);
 
-    generateJSONFile(tempData, Date.now() + "." + Choose_Sheet[0]);
+    generateJSONFile(tempData, Date.now() + "." + Choose_Sheet);
 
     fs.unlinkSync(path);
     res.status(200).send({ message: "Data was Created"});
