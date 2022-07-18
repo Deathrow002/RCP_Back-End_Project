@@ -1,33 +1,49 @@
 version: '3.8'
 
 services:
+  phpmyadmin:
+    depends_on:
+      - mysqldb
+    container_name: myadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysqldb
+      MYSQL_ROOT_PASSWORD: 12345678
+    restart: always
+    ports:
+      - 8081:80
+
+  mysqldb:
+    container_name: mysqldb
+    platform: linux/x86_64
+    image: mysql:latest
+    restart: always
+    environment:
+      TZ: "Asia/Bangkok"
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: IBM_RCP_DATABASE
+    ports:
+      - 3307:3306
+    volumes:
+      - db_data:/var/lib/mysql
+
   app:
+    depends_on:
+      - mysqldb
     build: .
     volumes:
       - .:/usr/src/app/
       - dependencies:/usr/src/app/node_modules
-    restart: unless-stopped
+    
     container_name: IBM_RCP_BackEnd
     ports:
-      - 8080:8080
+      - 8082:8082
     command: yarn server
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8081:8081
-
-  mysqldb:
-    platform: linux/x86_64
-    image: mysql:5.7
-    restart: unless-stopped
-    env_file: ./.env
-    environment:
-      MYSQL_ROOT_PASSWORD: 12345678
-      MYSQL_DATABASE: IBM_RCP_DATABASE
-    ports:
-      - 3306:3306
+networks:
+  dev_network:
 
 volumes:
   dependencies:
+  db_data:
+  

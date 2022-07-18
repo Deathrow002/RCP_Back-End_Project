@@ -1,7 +1,8 @@
-const { authJwt } = require("../middlewares");
+const { authJwt } = require("../middleware");
 const controller = require("../controllers/user.controller");
+
 const UploadSheet = require("../JsonConverter/ExceltoJson");
-const upload = require("../middlewares/upload")
+const upload = require("../middleware/upload");
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -24,10 +25,10 @@ module.exports = function (app) {
     controller.adminBoard
   );
   app.post(
-    "/api/test/upload_sheet",
+    "/api/test/convert_sheet",
     [authJwt.verifyToken],
     upload.single("file"),
-    UploadSheet.ConvertExelToJson
+    UploadSheet.UploadSheet
   );
   app.get(
     "/api/test/get_sheetsname",

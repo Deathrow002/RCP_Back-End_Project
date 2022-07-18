@@ -1,19 +1,16 @@
 module.exports = (sequelize, Sequelize) => {
-  const User = sequelize.define("users", {
+  const Indexsheet = sequelize.define("indexsheet", {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
-    username: {
+    SheetName: {
       type: Sequelize.STRING,
     },
-    email: {
-      type: Sequelize.STRING,
-    },
-    password: {
+    Authorizer: {
       type: Sequelize.STRING,
     },
   });
-  return User;
+  return Indexsheet;
 };

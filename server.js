@@ -1,81 +1,46 @@
 const express = require("express");
-
-const app = express();
-
 const cors = require("cors");
-
+const app = express();
 var corsOptions = {
-  origin: "http://localhost:8081",
+  origin: "http://localhost:8082",
 };
-
 app.use(cors(corsOptions));
-
+// parse requests of content-type - application/json
 app.use(express.json());
-
+// parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-global.__basedir = __dirname + "/..";
-
 const db = require("./app/models");
-const dbConfig = require("./app/config/db.config");
-
 const Role = db.role;
 
-db.mongoose
-  .connect(dbConfig.URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Successfully connect to MongoDB.");
-    initial();
-  })
-  .catch((err) => {
-    console.error("Connection error", err);
-    process.exit();
-  });
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Drop and Resync Db");
+  initial();
+});
 
 function initial() {
-  Role.estimatedDocumentCount((err, count) => {
-    if (!err && count === 0) {
-      new Role({
-        name: "Project Manager",
-      }).save((err) => {
-        if (err) {
-          console.log("error", err);
-        }
-        console.log("added 'Project Manager' to roles collection");
-      });
-      new Role({
-        name: "Quality Assurance",
-      }).save((err) => {
-        if (err) {
-          console.log("error", err);
-        }
-        console.log("added 'Quality Assurance' to roles collection");
-      });
-      new Role({
-        name: "Admin",
-      }).save((err) => {
-        if (err) {
-          console.log("error", err);
-        }
-        console.log("added 'Admin' to roles collection");
-      });
-    }
+  Role.create({
+    name: "user",
+  });
+
+  Role.create({
+    name: "moderator",
+  });
+
+  Role.create({
+    name: "admin",
   });
 }
 
 require("./app/routes/auth.routes")(app);
-
 require("./app/routes/user.routes")(app);
 
-const PORT = process.env.PORT || 8081;
-
+// simple route
 app.get("/", (req, res) => {
-  res.json({ message: "IBM RCP Server is Started" });
+  res.json({ message: "IBM RCP Back-End Started." });
 });
-
+// set port, listen for requests
+const PORT = process.env.PORT || 8083;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

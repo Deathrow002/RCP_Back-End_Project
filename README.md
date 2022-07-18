@@ -1,7 +1,18 @@
 # RCP_Back-End_Project
+Prepare Enviroment
+
+    Download and Install Docker Desktop 
+        - Link https://www.docker.com/products/docker-desktop/
 
 To start Server
 
-    npm install     -- or --    yarn install
+    Run command
+        - docker-compose up --build
 
-    npm server      -- or --    yarn server
+To Check Database
+
+    Open
+        - Link http://localhost:8081/
+
+        - Username: root
+        - Password: 12345678
