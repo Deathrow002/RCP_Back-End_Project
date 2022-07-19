@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 var corsOptions = {
-  origin: "http://localhost:8082",
+  origin: "http://localhost:3000",
 };
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
   res.json({ message: "IBM RCP Back-End Started." });
 });
 // set port, listen for requests
-const PORT = process.env.PORT || 8083;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
