@@ -31,20 +31,18 @@ exports.GetSheetName = async (req, res) => {
 };
 
 exports.UploadSheet = async (req, res) => {
+  let path = "./uploads/" + req.file.filename;
   try {
     if (req.file == undefined) {
       return res.status(400).send("Please upload an excel file!");
     }
-
-    let path = "./uploads/" + req.file.filename;
-
     const file = xlsx.readFile(path, { type: "binary", cellDates: true });
 
-    const Choose_Sheet = "AD_2-Payment";
+    //const SelectedSheet = "AD_2-Payment";
 
-    //const tempData = xlsx.utils.sheet_to_json(file.Sheets[Choose_Sheet]);
+    const SelectedSheet = "AD_1A-Finance";
 
-    const ws = file.Sheets[Choose_Sheet];
+    const ws = file.Sheets[SelectedSheet];
 
     var range = xlsx.utils.decode_range(ws["!ref"]);
 
@@ -56,10 +54,10 @@ exports.UploadSheet = async (req, res) => {
 
     // upload sheet-index
     SheetIndex.create({
-      SheetName: Choose_Sheet,
+      SheetName: SelectedSheet,
       Authorizer: req.userId,
     }).then((data) => {
-      const Data = polishData(tempData, Choose_Sheet, data.id);
+      const Data = polishData(tempData, SelectedSheet, data.id);
 
       // upload worksheet
       try {
@@ -72,18 +70,15 @@ exports.UploadSheet = async (req, res) => {
       }
     });
 
-    //const data = polishData(tempData, Choose_Sheet, 0000);
-
-    generateJSONFile(tempData, Date.now() + ".polishData." + Choose_Sheet);
-
     fs.unlinkSync(path);
     res.status(200).send({
       message: "Data Converted Success",
-      SheetName: Choose_Sheet,
+      SheetName: SelectedSheet,
       //ShowData: tempData,
       //Data: Sheet_ID,
     });
   } catch (error) {
+    fs.unlinkSync(path);
     console.log(error);
     res.status(500).send({
       message: "Could not upload the file: " + req.file.originalname,
@@ -111,20 +106,38 @@ function polishData(data, SheetName, Sheet_ID) {
       data["UR_Desc"] = data[val];
     });
     ["IBM Plan Start Date "].forEach((val) => {
-      data["Start_Date"] = data[val] || "";
-      if (data["Start_Date"] == "") {
+      if (data[val] == null || data[val] == " ") {
         ["IBM\r\nActual Start \r\nDate"].forEach((val) => {
-          data["Start_Date"] = data[val] || "";
+          if (data[val] == null || data[val] == " ") {
+            data["Start_Date"] = null;
+          } else {
+            data["Start_Date"] = data[val];
+          }
         });
+      } else {
+        data["Start_Date"] = data[val];
       }
     });
     ["Target Implementation"].forEach((val) => {
-      data["End_Date"] = data[val] || "";
-      if (data["End_Date"] == "") {
+      if (data[val] == null || data[val] == " ") {
         ["Project IMP Year-Month"].forEach((val) => {
-          data["End_Date"] = data[val] || "";
-          data["End_Date"].match(/.{1,2}/g);
+          if (data[val] == null || data[val] == " ") {
+            data["End_Date"] = null;
+          } else {
+            if (data[val] == "9999") {
+              data["End_Date"] = null;
+            } else {
+              let dates = data[val].match(/.{1,4}/g);
+              if (dates[1] == "x") {
+                data["End_Date"] = null;
+              } else {
+                data["End_Date"] = "28-" + dates[1] + "-" + dates[0];
+              }
+            }
+          }
         });
+      } else {
+        data["End_Date"] = data[val];
       }
     });
     ["IBM \r\nEffort Est (MDs)"].forEach((val) => {
