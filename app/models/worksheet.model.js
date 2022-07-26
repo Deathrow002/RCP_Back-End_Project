@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Worksheet = sequelize.define("workwheet", {
+  const Worksheet = sequelize.define("worksheets", {
     Column_number: {
       type: Sequelize.INTEGER,
     },

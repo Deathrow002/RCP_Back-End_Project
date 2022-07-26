@@ -4,7 +4,7 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
   host: config.HOST,
   dialect: config.dialect,
-  //operatorsAliases: 0,
+  operatorsAliases: false,
   pool: {
     max: config.pool.max,
     min: config.pool.min,
@@ -21,6 +21,7 @@ db.sequelize = sequelize;
 db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.role = require("../models/role.model.js")(sequelize, Sequelize);
 db.Worksheet = require("../models/worksheet.model")(sequelize, Sequelize);
+db.EffortSheet = require("../models/effortsheet.model")(sequelize, Sequelize);
 db.SheetIndex = require("../models/indexsheet.model")(sequelize, Sequelize);
 
 // user_roles

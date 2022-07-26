@@ -6,6 +6,7 @@ var fs = require("fs");
 
 const Worksheet = db.Worksheet;
 const SheetIndex = db.SheetIndex;
+const EffortSheet = db.EffortSheet;
 
 exports.GetSheetName = async (req, res) => {
   try {
@@ -53,22 +54,29 @@ exports.UploadSheet = async (req, res) => {
     const tempData = xlsx.utils.sheet_to_json(ws, { raw: false });
 
     // upload sheet-index
-    SheetIndex.create({
-      SheetName: SelectedSheet,
-      Authorizer: req.userId,
-    }).then((data) => {
-      const Data = polishData(tempData, SelectedSheet, data.id);
+    try {
+      // upload sheet-index
+      const indexSheet = await SheetIndex.create({
+        SheetName: SelectedSheet,
+        Authorizer: req.userId,
+      });
+
+      var sheetId = indexSheet.id;
+
+      // Reform Data
+      const sheetData = worksheetData(tempData, SelectedSheet, sheetId);
 
       // upload worksheet
-      try {
-        Worksheet.bulkCreate(Data);
-      } catch (error) {
-        res.status(500).send({
-          message: "Fail to import data into database!",
-          error: error.message,
-        });
-      }
-    });
+      Worksheet.bulkCreate(sheetData).then((data) => {
+        // Create Effort Sheet
+        EffortSheet.bulkCreate(splitEffort(data));
+      });
+    } catch (error) {
+      res.status(500).send({
+        message: "Fail to import data into database!",
+        error: error.message,
+      });
+    }
 
     fs.unlinkSync(path);
     res.status(200).send({
@@ -86,7 +94,7 @@ exports.UploadSheet = async (req, res) => {
   }
 };
 
-function polishData(data, SheetName, Sheet_ID) {
+function worksheetData(data, SheetName, Sheet_ID) {
   let tempData = [];
   let newData = [];
   let Data = [];
@@ -182,6 +190,99 @@ function polishData(data, SheetName, Sheet_ID) {
     Data.push(data);
   });
 
+  return Data;
+}
+
+function splitEffort(data) {
+  let tempData = [];
+  let newData = [];
+  let Data = [];
+
+  tempData = data.map((data) => {
+    return data;
+  });
+
+  tempData.forEach((row) => {
+    let effortData = [];
+    var Ys, Ye, Ms, Me;
+
+    if (row["End_Date"] != null && row["Start_Date"] != null) {
+      var Start = row["Start_Date"].split("-");
+      var End = row["End_Date"].split("-");
+      Ys = parseInt(Start[0]);
+      Ye = parseInt(End[0]);
+      Ms = parseInt(Start[1]);
+      Me = parseInt(End[1]);
+      var Year = Ye - Ys;
+      var Month = Me - Ms;
+      var sum = row["SUM"];
+      if (Year == 0) {
+        if (Month > 0) {
+          effortData = CreateEffotCell(Month, sum).map((data) => {
+            var Data = JSON.stringify(data);
+            return Data;
+          });
+        }
+      } else {
+        var duration = Me + 12 - Ms;
+        if (Month != 0) {
+          effortData = CreateEffotCell(duration, sum).map((data) => {
+            var Data = JSON.stringify(data);
+            return Data;
+          });
+        }
+      }
+    }
+
+    newData.push([
+      row["Column_number"],
+      effortData,
+      row["Start_Date"],
+      row["End_Date"],
+      row["SUM"],
+      row["SheetName"],
+      row["Sheet_ID"],
+      row["id"],
+    ]);
+  });
+
+  newData.forEach((row) => {
+    let data = {
+      Column_number: row[0],
+      Effort_Data: row[1],
+      Start_Date: row[2],
+      End_Date: row[3],
+      SUM: row[4],
+      SheetName: row[5],
+      Sheet_ID: row[6],
+      id: row[7],
+    };
+    Data.push(data);
+  });
+
+  return Data;
+}
+
+function CreateEffotCell(M, S) {
+  let Data = [];
+  var data;
+  var Quarter = M * 4;
+  if (S != null) {
+    if (M > 6) {
+      Quarter = 6 * 4 + 2;
+    }
+
+    var Sum = S / Quarter;
+
+    Sum = Sum * 10000;
+    Sum = parseInt(Sum);
+    Sum = Sum / 10000;
+
+    for (let i = 0; i < Quarter; i++) {
+      data = { [`Week ${i + 1}`]: Sum };
+      Data.push(data);
+    }
+  }
   return Data;
 }
 

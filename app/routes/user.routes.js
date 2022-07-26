@@ -25,7 +25,7 @@ module.exports = function (app) {
     controller.adminBoard
   );
   app.post(
-    "/api/test/convert_sheet",
+    "/api/test/upload_sheet",
     [authJwt.verifyToken],
     upload.single("file"),
     UploadSheet.UploadSheet
